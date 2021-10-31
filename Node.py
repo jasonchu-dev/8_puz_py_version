@@ -1,16 +1,7 @@
-import random
-    
-class UCS:
-    def __init__(self):
-        self.queue = []
-        self.checked = []
-        self.path = []
-
-    def add(self, node):
-        self.list.append(node)
+import UCS
+import main
 
 class Node:
-
     def __init__(self, parent_puzzle):
         self.puzzle = parent_puzzle
         self.queue = []
@@ -20,12 +11,18 @@ class Node:
         self.parent = None
 
     def get_i_j(self):
-        for i in self.puzzle:
-            for j in self.puzzle:
-                if self.puzzle[i][j] is 0: break
+        for self.i in range(3):
+            for self.j in range(3):
+                if self.puzzle[self.i][self.j] is 0: break
 
     def goal(self):
         if self.puzzle == self.solution: return True
+
+    def check(self):
+        self.r(self)
+        self.l(self)
+        self.d(self)
+        self.u(self)
 
     def r(self):
         if self.j != 2:
@@ -64,8 +61,3 @@ class Node:
 
     # def same(self, parent_puzzle): # might need this
     #     if self.puzzle == parent_puzzle: return True
-
-
-puzzle = [[1, 4, 5], [2, 3, 7], [8, 0, 6]]
-p = Node(puzzle)
-
