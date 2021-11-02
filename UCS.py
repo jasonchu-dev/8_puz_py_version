@@ -1,16 +1,29 @@
-from Node import check
-from Node import goal
+import Node
 
-class UCS:
+class ucs:
     def __init__(self, parent_puzzle):
         self.queue = []
         self.checked = []
-        self.path = []
-        self.queue.append(parent_puzzle)
-        found = False
-        while (len(self.queue) > 0 and found == False):
+        self.puzzle = parent_puzzle
+        self.queue.append(self.puzzle)
+    
+    def runthrough(self):
+        while len(self.queue) != 0:
             curr = self.queue[0]
-            self.checked.append(self.queue[0])
-            self.queue.pop(0)
-            curr.check() # curr.Node.check() won't work
-            
+            self.checked.append(curr) # move at the end of this loop
+            curr.Node.move()
+            for i in len(self.puzzle.kids):
+                kid = self.puzzle.kids[i]
+                if kid.goal():
+                    print(kid)
+                    while kid.parent != None:
+                        kid = kid.parent
+                        print(kid)
+                    print("tgrdthfyfg", kid)
+                if not (self.prev_encounter_check(self.queue, kid) and self.prev_encounter_check(self.checked, kid)):
+                    self.queue.append(kid)
+
+    def prev_encounter_check(list, kid):
+        for i in list:
+            if kid == list[i]: return True
+        return False
