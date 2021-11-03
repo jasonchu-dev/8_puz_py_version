@@ -128,9 +128,9 @@ class node:
 
 
 puzzle = [
-    [1, 2, 3], 
-    [0, 4, 6], 
-    [7, 5, 8]
+    [1, 2, 0], 
+    [4, 5, 3], 
+    [7, 8, 6]
 ]
 if(ucs(node(puzzle)).found == False):
     print("no solution found")
