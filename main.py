@@ -37,6 +37,46 @@ class ucs:
             print("next\n")
             if self.found: break
 
+class manhattan:
+    def __init__(self, puzzle):
+        self.queue = []
+        self.checked = []
+        self.puzzle = puzzle
+        self.queue.append(self.puzzle)
+        self.found = False
+        self.count = 0
+    
+    # def runthrough(self):
+        while range(len(self.queue)) != 0:
+            curr = self.queue[0]
+            if curr.goal(): # for the very root node that is solution
+                print(curr.puzzle)
+                break
+            self.checked.append(curr)
+            curr.move()
+            # check here with loop which kid has lower cost
+            # check that one kid if its a goal
+            for i in range(len(curr.kids)):
+                kid = curr.kids[i]
+                if kid.goal():
+                    print(kid.puzzle)
+                    while kid.parent != None:
+                        kid = kid.parent
+                        print(kid.puzzle)
+                    self.found = True
+                    break
+                if not self.prev_encounter_check(self.queue, kid):
+                    if not self.prev_encounter_check(self.checked, kid):
+                        self.queue.append(kid)
+                        ##################################################
+                        for i in range(len(kid.puzzle)):
+                            print(kid.puzzle[i])
+                        print('\n')
+                        ##################################################
+            self.queue.pop(0)
+            print("next\n")
+            if self.found: break
+
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
             if kid.puzzle == list[node].puzzle:
