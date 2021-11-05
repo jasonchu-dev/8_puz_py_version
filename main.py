@@ -239,4 +239,4 @@ else:
             print(path[i][j])
         print('\n')
 
-print(cpuinfo.get_cpu_info()["brand"])
+print("Executed on:\n", cpuinfo.get_cpu_info()['brand_raw'], '\n')
