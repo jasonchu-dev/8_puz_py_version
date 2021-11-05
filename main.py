@@ -1,5 +1,6 @@
 import copy
-
+import cpuinfo
+path = []
 class ucs:
     def __init__(self, puzzle):
         self.queue = []
@@ -12,30 +13,31 @@ class ucs:
         while range(len(self.queue)) != 0:
             curr = self.queue[0]
             if curr.goal(): # for root node that is solution
-                print(curr.puzzle)
+                path.append(curr.puzzle)
+                self.found = True
                 break
             self.checked.append(curr)
             curr.move()
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
                 if kid.goal():
-                    print(kid.puzzle)
+                    path.insert(0, kid.puzzle)
                     while kid.parent != None:
                         kid = kid.parent
-                        print(kid.puzzle)
+                        path.insert(0, kid.puzzle)
                     self.found = True
                     break
                 if not self.prev_encounter_check(self.queue, kid):
                     if not self.prev_encounter_check(self.checked, kid):
                         self.queue.append(kid)
-                        ##################################################
-                        for i in range(len(kid.puzzle)):
-                            print(kid.puzzle[i])
-                        print('\n')
-                        ##################################################
             self.queue.pop(0)
-            print("next\n")
             if self.found: break
+
+    def prev_encounter_check(self, list, kid):
+        for node in range(len(list)):
+            if kid.puzzle == list[node].puzzle:
+                return True
+        return False
 
 class manhattan:
     def __init__(self, puzzle):
@@ -45,12 +47,14 @@ class manhattan:
         self.queue.append(self.puzzle)
         self.found = False
         self.g = 0 # number of steps taken
+        self.highest_hueristic = 0
     
     # def runthrough(self):
         while range(len(self.queue)) != 0:
             curr = self.queue[0]
             if curr.goal(): # for the very root node that is solution
                 print(curr.puzzle)
+                self.found = True
                 break
             self.g += 1
             self.checked.append(curr)
@@ -65,34 +69,47 @@ class manhattan:
             if curr.parent == None: # for very root of node that has no parent, set heuristic
                 curr.calc_h()
                 curr.f = curr.h
+                highest_hueristic = curr.f
             i = 0
             while i < len(curr.kids):
-                if curr.f >= min(estimation): # and curr.kids[i].f == min(estimation):
+                kid = curr.kids[i]
+                if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
+                    if highest_hueristic >= curr.kids[i].f:
+                        self.queue.append(kid)
+                        ##################################################
+                        for j in range(len(kid.puzzle)):
+                            print(kid.puzzle[j])
+                        print('\n')
+                        ##################################################
+                    else: 
+                        curr.encountered = True
+                        ##################################################
+                        for j in range(len(kid.puzzle)):
+                            print(kid.puzzle[j])
+                        print('\n')
+                        ##################################################
+                else:
+                    curr.encountered = True
+                    ##################################################
+                    for j in range(len(kid.puzzle)):
+                        print(kid.puzzle[j])
+                    print('\n')
+                    ##################################################
+                i += 1
+            i = 0
+            while i < len(curr.kids):
+                if highest_hueristic >= curr.kids[i].f and not curr.kids[i].encountered:
                     kid = curr.kids[i]
-                    if not self.prev_encounter_check(self.queue, kid):
-                        if not self.prev_encounter_check(self.checked, kid):
-                            self.queue.append(kid)
-                            i += 1
-                            ##################################################
-                            for j in range(len(kid.puzzle)):
-                                print(kid.puzzle[j])
-                            print('\n')
-                            ##################################################
-                        else: 
-                            curr.kids.pop(i)
-                    else:
-                        curr.kids.pop(i)
-                else: i += 1
-                if kid.goal():
-                    print(kid.puzzle)
-                    while kid.parent != None:
-                        kid = kid.parent
+                    if kid.goal():
                         print(kid.puzzle)
-                    self.found = True
-                    break
-                self.queue.pop(0)
-                print("next\n")
-                if self.found: break
+                        while kid.parent != None:
+                            kid = kid.parent
+                            print(kid.puzzle)
+                        self.found = True
+                i += 1
+            if self.found: break
+            self.queue.pop(0)
+            print("next\n")
 
     def calc_min_f(self, curr, estimation):
         for i in range(len(curr.kids)):
@@ -115,6 +132,7 @@ class node:
         self.parent = None
         self.h = 0 # estimated distance to goal
         self.f = 0 # heuristic total
+        self.encountered = False
 
     def calc_h(self):
         num_in_place = 0
@@ -201,9 +219,24 @@ class node:
 
 
 puzzle = [
-    [1, 3, 6], 
-    [5, 0, 7], 
-    [4, 8, 2]
+    [1, 2, 3], 
+    [5, 0, 6], 
+    [4, 7, 8]
 ]
-if(manhattan(node(puzzle)).found == False):
-    print("no solution found")
+
+# for i in range(len(puzzle)):
+#     print(puzzle[i])
+# print("\nnext\n")
+
+if(ucs(node(puzzle)).found == False):
+    print("\nNo solution found\n")
+
+else:
+    print("\nSolution:\n")
+    for i in range(len(path)):
+        print("Depth:", i)
+        for j in range(len(path[i])):
+            print(path[i][j])
+        print('\n')
+
+print(cpuinfo.get_cpu_info()["brand"])
