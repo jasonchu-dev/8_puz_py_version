@@ -139,9 +139,9 @@ class node:
         for row in range(3):
             for col in range(3):
                 num_in_place += 1
-                if row == 2 and col == 2:
+                if num_in_place == 9:
                     num_in_place = 0
-                if self.puzzle[row][col] != num_in_place:
+                if self.puzzle[row][col] != num_in_place and self.puzzle[row][col] != 0:
                     found = False
                     for row1 in range(3):
                         for col1 in range(3):
@@ -219,24 +219,24 @@ class node:
 
 
 puzzle = [
-    [1, 2, 3], 
-    [5, 0, 6], 
+    [1, 3, 6], 
+    [5, 0, 2], 
     [4, 7, 8]
 ]
 
-# for i in range(len(puzzle)):
-#     print(puzzle[i])
-# print("\nnext\n")
+for i in range(len(puzzle)):
+    print(puzzle[i])
+print("\nnext\n")
 
-if(ucs(node(puzzle)).found == False):
+if(manhattan(node(puzzle)).found == False):
     print("\nNo solution found\n")
 
-else:
-    print("\nSolution:\n")
-    for i in range(len(path)):
-        print("Depth:", i)
-        for j in range(len(path[i])):
-            print(path[i][j])
-        print('\n')
+# else:
+#     print("\nSolution:\n")
+#     for i in range(len(path)):
+#         print("Depth:", i)
+#         for j in range(len(path[i])):
+#             print(path[i][j])
+#         print('\n')
 
 print("Executed on:\n", cpuinfo.get_cpu_info()['brand_raw'], '\n')
