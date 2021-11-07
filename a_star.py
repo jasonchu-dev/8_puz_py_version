@@ -1,6 +1,6 @@
 import collections
 
-class misplaced:
+class a_star:
     def __init__(self, puzzle):
         self.queue = []
         self.checked = []

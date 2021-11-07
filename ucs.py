@@ -1,3 +1,4 @@
+import collections
 class ucs:
     def __init__(self, puzzle):
         self.queue = []
@@ -15,6 +16,7 @@ class ucs:
                 break
             self.checked.append(curr)
             curr.move()
+            curr.kids = collections.deque(sorted(list(curr.kids), key=lambda node : node.f))
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
                 if kid.goal():

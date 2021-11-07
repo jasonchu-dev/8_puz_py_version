@@ -1,5 +1,4 @@
 import copy
-
 class node:
     def __init__(self, parent_puzzle, val):
         self.puzzle = parent_puzzle
@@ -22,13 +21,16 @@ class node:
                     num_in_place = 0
                 if self.puzzle[row][col] != num_in_place and self.puzzle[row][col] != 0:
                     found = False
-                    for row1 in range(3):
-                        for col1 in range(3):
-                            if self.solution[row1][col1] == self.puzzle[row][col]:
-                                self.h += abs(row1-row) + abs(col1-col)
-                                found = True
+                    if self.val == 2:
+                        for row1 in range(3):
+                            for col1 in range(3):
+                                if self.solution[row1][col1] == self.puzzle[row][col]:
+                                    self.h += abs(row1-row) + abs(col1-col)
+                                    found = True
+                                if found: break
                             if found: break
-                        if found: break
+                        else: self.h += 1
+
 
     def get_i_j(self):
         found = False
@@ -58,8 +60,9 @@ class node:
         if self.j != 2:
             next_puzzle = copy.deepcopy(self.puzzle)
             next_puzzle[self.i][self.j+1], next_puzzle[self.i][self.j] = next_puzzle[self.i][self.j], next_puzzle[self.i][self.j+1]
-            child = node(next_puzzle)
-            child.calc_h()
+            child = node(next_puzzle, self.val)
+            if self.val != 1:
+                child.calc_h()
             self.kids.append(child)
             child.parent = self
 
@@ -67,8 +70,9 @@ class node:
         if self.j != 0:
             next_puzzle = copy.deepcopy(self.puzzle)
             next_puzzle[self.i][self.j-1], next_puzzle[self.i][self.j] = next_puzzle[self.i][self.j], next_puzzle[self.i][self.j-1]
-            child = node(next_puzzle)
-            child.calc_h()
+            child = node(next_puzzle, self.val)
+            if self.val != 1:
+                child.calc_h()
             self.kids.append(child)
             child.parent = self
 
@@ -76,8 +80,9 @@ class node:
         if self.i != 2:
             next_puzzle = copy.deepcopy(self.puzzle)
             next_puzzle[self.i][self.j], next_puzzle[self.i+1][self.j] = next_puzzle[self.i+1][self.j], next_puzzle[self.i][self.j]
-            child = node(next_puzzle)
-            child.calc_h()
+            child = node(next_puzzle, self.val)
+            if self.val != 1:
+                child.calc_h()
             self.kids.append(child)
             child.parent = self
 
@@ -85,7 +90,8 @@ class node:
         if self.i != 0:
             next_puzzle = copy.deepcopy(self.puzzle)
             next_puzzle[self.i][self.j], next_puzzle[self.i-1][self.j] = next_puzzle[self.i-1][self.j], next_puzzle[self.i][self.j]
-            child = node(next_puzzle)
-            child.calc_h()
+            child = node(next_puzzle, self.val)
+            if self.val != 1:
+                child.calc_h()
             self.kids.append(child)
             child.parent = self

@@ -1,5 +1,4 @@
 import collections
-import cpuinfo
 import time
 import copy
 path = []
@@ -26,23 +25,29 @@ class ucs:
             if q_size < len(self.queue):
                 q_size = len(self.queue)
             curr = self.queue[0]
-            if curr.goal():
+            if curr.goal(): # for root node that is solution
                 finish_time = time.time() - start_time
                 path.append(curr.puzzle)
-                while curr.parent != None:
-                    curr = curr.parent
-                    path.insert(0, curr.puzzle)
-                self.checked.append(curr)
                 self.found = True
                 break
             self.checked.append(curr)
             curr.move()
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
-                expanded += 1 # not sure if this includes repeat nodes
+                if kid.goal():
+                    finish_time = time.time() - start_time
+                    path.insert(0, kid.puzzle)
+                    while kid.parent != None:
+                        kid = kid.parent
+                        path.insert(0, kid.puzzle)
+                    self.found = True
+                    expanded += 1
+                    break
                 if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
                     self.queue.append(kid)
-            del self.queue[0]
+                expanded += 1  
+            self.queue.pop(0)
+            if self.found: break
 
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
@@ -69,29 +74,36 @@ class a_star:
                 q_size = len(self.queue)
             self.queue = collections.deque(sorted(list(self.queue), key=lambda node : node.f))
             curr = self.queue[0]
-            if curr.goal():
+            if curr.goal(): # for the very root node that is solution
                 finish_time = time.time() - start_time
-                path.append(curr.puzzle)
-                while curr.parent != None:
-                    curr = curr.parent
-                    path.insert(0, curr.puzzle)
-                self.checked.append(curr)
+                path.insert(0, curr.puzzle)
                 self.found = True
                 break
             self.checked.append(curr)
+            curr.move()
+            kid = None
             if curr.parent == None: # for very root of node that has no parent, set heuristic
                 curr.calc_h()
                 curr.f = curr.h
-            self.g += 1
-            curr.move()
+            curr.kids = collections.deque(sorted(list(curr.kids), key=lambda node : node.f))
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
-                expanded += 1 # not sure if this includes repeat nodes
+                if kid.goal():
+                    finish_time = time.time() - start_time
+                    path.insert(0, kid.puzzle)
+                    while kid.parent != None:
+                        kid = kid.parent
+                        path.insert(0, kid.puzzle)
+                    self.found = True
+                    expanded += 1
+                self.g += 1
                 kid.g = self.g
                 kid.f = kid.g + kid.h
                 if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
                     self.queue.append(kid)
+                expanded += 1
             del self.queue[0]
+            if self.found: break
 
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
@@ -195,23 +207,42 @@ class node:
             self.kids.append(child)
             child.parent = self
 
-# 1: UCS
-# 2: Manhattan
-# 3: Misplaced
+x, y = 3, 3
+puzzle = [[0 for i in range(x)] for j in range(y)]
+spot = 0
 
-val = 3
-puzzle = [
-    [1, 3, 6], 
-    [5, 0, 2], 
-    [4, 7, 8]
-]
-if val == 1: print("\nUCS\n")
-elif val == 2: print("\nManhattan\n")
-else: print("\nMisplaced\n")
-print("Testing in progress...")
+print("Fill in the array:\n")
 
-if not a_star(node(puzzle, val)).found: # change ucs or a_star
-    print("\nNo solution found\n")
+for i in range(len(puzzle)):
+    for j in range(len(puzzle)):
+        spot += 1
+        print("spot", spot)
+        puzzle[i][j] = int(input())
+        
+print('\n')
+for i in range(len(puzzle)):
+    print(puzzle[i])
+
+print("\n")
+val = int(input("Press 1 for Uniformed Cost Search\nPress 2 for A* with Manhattan Distance heuristic\nPress 3 for A* with Misplaced Tiles heuristic\n"))
+
+print("Please wait...")
+
+p = node(puzzle, val)
+search = None
+str = ""
+
+if val == 2 or val == 3:
+    if val == 2:
+        str = "A* with Manhattan Distance heuristic\n"
+    else: str = "A* with Misplaced Tiles heuristic\n"
+    search = a_star(p)
+else: 
+    str = "Uniformed Cost Search\n"
+    search = ucs(p)
+
+if not search.found:
+        print("\nNo solution found\n")
 else:
     print("\nSolution:\n")
     for i in range(len(path)):
@@ -219,11 +250,9 @@ else:
         for j in range(len(path[i])):
             print(path[i][j])
         print('\n')
-if val == 1: print("UCS")
-elif val == 2: print("Manhattan")
-else: print("Misplaced")
-print("Nodes expanded:", expanded)
-print("Max queue size:", q_size)
-print("Time in sec:", finish_time)
+    print(str)
+    print("Nodes expanded:", expanded)
+    print("Max queue size:", q_size)
+    print("Time in sec:", finish_time)
 
-print("\nExecuted on:\n", cpuinfo.get_cpu_info()['brand_raw'], '\n')
+print("\nProgram simulated and tested on:\nIntel(R) Core(TM) i5-7300HQ CPU @ 2.50GHz\n")
