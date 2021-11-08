@@ -14,7 +14,6 @@ class ucs:
         self.puzzle = puzzle
         self.queue.append(self.puzzle)
         self.found = False
-        self.num_of_nodes = 0
         global start_time
         global finish_time
         global expanded
@@ -25,29 +24,27 @@ class ucs:
             if q_size < len(self.queue):
                 q_size = len(self.queue)
             curr = self.queue[0]
-            if curr.goal(): # for root node that is solution
+            if curr.goal():
                 finish_time = time.time() - start_time
-                path.append(curr.puzzle)
+                path.append(curr)
+                while curr.parent != None:
+                    curr = curr.parent
+                    path.insert(0, curr)
+                self.checked.append(curr)
                 self.found = True
                 break
             self.checked.append(curr)
+            if curr.parent == None: # for very root of node that has no parent, set heuristic
+                curr.f = curr.h # or 0 since root is at depth 0
             curr.move()
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
-                if kid.goal():
-                    finish_time = time.time() - start_time
-                    path.insert(0, kid.puzzle)
-                    while kid.parent != None:
-                        kid = kid.parent
-                        path.insert(0, kid.puzzle)
-                    self.found = True
-                    expanded += 1
-                    break
+                expanded += 1 # not sure if this includes repeat nodes
+                kid.g = kid.parent.g + 1
+                kid.f = kid.g + kid.h
                 if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
                     self.queue.append(kid)
-                expanded += 1  
-            self.queue.pop(0)
-            if self.found: break
+            del self.queue[0]
 
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
@@ -62,7 +59,6 @@ class a_star:
         self.puzzle = puzzle
         self.queue.append(self.puzzle)
         self.found = False
-        self.g = 0 # number of steps taken
         global start_time
         global finish_time
         global expanded
@@ -74,36 +70,28 @@ class a_star:
                 q_size = len(self.queue)
             self.queue = collections.deque(sorted(list(self.queue), key=lambda node : node.f))
             curr = self.queue[0]
-            if curr.goal(): # for the very root node that is solution
+            if curr.goal():
                 finish_time = time.time() - start_time
-                path.insert(0, curr.puzzle)
+                path.append(curr)
+                while curr.parent != None:
+                    curr = curr.parent
+                    path.insert(0, curr)
+                self.checked.append(curr)
                 self.found = True
                 break
             self.checked.append(curr)
-            curr.move()
-            kid = None
             if curr.parent == None: # for very root of node that has no parent, set heuristic
                 curr.calc_h()
                 curr.f = curr.h
-            curr.kids = collections.deque(sorted(list(curr.kids), key=lambda node : node.f))
+            curr.move()
             for i in range(len(curr.kids)):
                 kid = curr.kids[i]
-                if kid.goal():
-                    finish_time = time.time() - start_time
-                    path.insert(0, kid.puzzle)
-                    while kid.parent != None:
-                        kid = kid.parent
-                        path.insert(0, kid.puzzle)
-                    self.found = True
-                    expanded += 1
-                self.g += 1
-                kid.g = self.g
+                expanded += 1 # not sure if this includes repeat nodes
+                kid.g = kid.parent.g + 1
                 kid.f = kid.g + kid.h
                 if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
                     self.queue.append(kid)
-                expanded += 1
             del self.queue[0]
-            if self.found: break
 
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
@@ -119,19 +107,15 @@ class node:
         self.i = 0
         self.j = 0
         self.parent = None
-        self.g = 0 # distance away from initial
         self.h = 0 # estimated distance to goal
+        self.g = 0 # cost from initial
         self.f = 0 # heuristic total
         self.val = val # user input taken for which hueristic to calculate h
 
     def calc_h(self):
-        num_in_place = 0
         for row in range(3):
             for col in range(3):
-                num_in_place += 1
-                if num_in_place == 9:
-                    num_in_place = 0
-                if self.puzzle[row][col] != num_in_place and self.puzzle[row][col] != 0:
+                if self.puzzle[row][col] != self.solution[row][col] and self.puzzle[row][col] != 0:
                     found = False
                     if self.val == 2:
                         for row1 in range(3):
@@ -247,8 +231,8 @@ else:
     print("\nSolution:\n")
     for i in range(len(path)):
         print("Depth:", i)
-        for j in range(len(path[i])):
-            print(path[i][j])
+        for j in range(len(path[i].puzzle)):
+            print(path[i].puzzle[j])
         print('\n')
     print(str)
     print("Nodes expanded:", expanded)

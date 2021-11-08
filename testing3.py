@@ -81,14 +81,14 @@ class a_star:
 
         start_time = time.time() # i would think clock starts here the moment first node is in queue
         while range(len(self.queue)) != 0:
+            heapq.heapify(self.queue)
             if q_size < len(self.queue):
                 q_size = len(self.queue)
             # just for other tests
             # test_q.append(self.queue)
             # print(test_q[0])
             # #####################################
-            self.queue = collections.deque(sorted(list(self.queue), key=lambda node : node.f))
-            curr = self.queue[0]
+            curr = heapq.heappop(self.queue)
             if curr.goal():
                 finish_time = time.time() - start_time
                 path.append(curr)
@@ -119,8 +119,8 @@ class a_star:
                 kid.g = kid.parent.g + 1
                 kid.f = kid.g + kid.h
                 if not self.prev_encounter_check(self.queue, kid) and not self.prev_encounter_check(self.checked, kid):
-                    self.queue.append(kid)
-            del self.queue[0]
+                    heapq.heappush(self.queue, kid)
+            # del self.queue[0]
 
     def prev_encounter_check(self, list, kid):
         for node in range(len(list)):
@@ -142,7 +142,7 @@ class node:
         self.val = val # user input taken for which hueristic to calculate h
 
     def __lt__(self, other):
-        return self.val < other.val
+        return self.f < other.f
 
     def calc_h(self):
         for row in range(3):
@@ -262,12 +262,12 @@ class node:
 #     [4, 8, 2]
 # ]
 
-# # Depth 16:
-# puzzle = [
-#     [1, 6, 7], 
-#     [5, 0, 3], 
-#     [4, 8, 2]
-# ]
+# Depth 16:
+puzzle = [
+    [1, 6, 7], 
+    [5, 0, 3], 
+    [4, 8, 2]
+]
 
 # # Depth 20:
 # puzzle = [
