@@ -7,3 +7,5 @@ First attempt at learning and implementing the A* search algorithm. This is an e
 * Uniform-Cost Search (Not A*): This one is essentially brute force bfs.
 * Manhattan Distance: How far away the misplaced tiles are from their proper spot.
 * Misplaced Tiles: The number of misplaced tiles.
+
+I attempted to make another version that's cleaner and more readible in C++ but unfortunately it doesn't work. [Here it is](https://github.com/jasonchu-dev/8_puz_cpp_version)
